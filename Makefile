@@ -6,6 +6,7 @@ deploy: apply all playbook
 ## For development and testing purposes
 
 BOOK2USE = prepare.yml # name of the playbook to use
+PRIVATE_KEY_PATH = /path/to/your/key.pem # path to your private key
 
 init:
 	cd terraform && terraform init
@@ -38,7 +39,7 @@ update_hosts:
 	echo "" >> $(OUTPUT_FILE)
 	echo "[aws_server:vars]" >> $(OUTPUT_FILE)
 	echo "ansible_ssh_user=ec2_user" >> $(OUTPUT_FILE)
-	echo "ansible_ssh_private_key_file=/path/to/your/key.pem" >> $(OUTPUT_FILE)
+	echo "ansible_ssh_private_key_file=$(PRIVATE_KEY_PATH)" >> $(OUTPUT_FILE)
 
 clean_temp:
 	rm ./terraform/$(TEMP_FILE)
