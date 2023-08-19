@@ -1,0 +1,21 @@
+---
+- name: Update system and install packages
+  hosts: aws_server
+  become_user: root
+  become: yes
+  tasks:
+    - name: Run apt-get update
+      become: yes
+      apt: update_cache=yes
+    
+    - name: Run apt-get upgrade
+      become: yes
+      apt: upgrade=dist
+
+    - name: Run script to install packages
+      become: yes
+      script: ../scripts/install-docker.sh # Amazon Linux 2
+
+    - name: Run docker version
+      become: yes
+      shell: docker version
