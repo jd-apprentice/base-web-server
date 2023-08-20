@@ -4,17 +4,39 @@
   become_user: root
   become: yes
   tasks:
-    - name: Run apt-get update
+    - name: Run dnf update
       become: yes
-      apt: update_cache=yes
+      dnf:
+        name: '*'
+        state: latest
     
-    - name: Run apt-get upgrade
+    - name: Run dnf upgrade
       become: yes
-      apt: upgrade=dist
+      dnf:
+        name: '*'
+        state: latest
+        exclude: kernel* # Exclude kernel packages
 
     - name: Run script to install packages
       become: yes
       script: ../scripts/install-docker.sh # Amazon Linux 2
+
+    - name: Add docker group
+      become: yes
+      group:
+        name: docker
+        state: present
+    
+    - name: Add user to docker group
+      become: yes
+      user:
+        name: ec2-user
+        groups: docker
+        append: yes
+
+    - name: usermod ec2-user
+      become: yes
+      shell: usermod -aG docker ec2-user
 
     - name: Run docker version
       become: yes
