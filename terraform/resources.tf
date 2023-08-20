@@ -1,5 +1,6 @@
 resource "aws_vpc" "example_vpc" {
-  cidr_block = "10.0.0.0/16"
+  cidr_block         = "10.0.0.0/16"
+  enable_dns_support = true
   tags = {
     Name = "production-vpc"
   }
@@ -10,6 +11,28 @@ resource "aws_internet_gateway" "example_igw" {
   tags = {
     Name = "production-igw"
   }
+}
+
+resource "aws_route_table" "example_public_rt" {
+  vpc_id = aws_vpc.example_vpc.id
+  route {
+    cidr_block = "0.0.0.0/0"
+    gateway_id = aws_internet_gateway.example_igw.id
+  }
+
+  route {
+    ipv6_cidr_block = "::/0"
+    gateway_id      = aws_internet_gateway.example_igw.id
+  }
+
+  tags = {
+    Name = "production-public-route-table"
+  }
+}
+
+resource "aws_route_table_association" "example_public_rt_association" {
+  subnet_id      = aws_subnet.subnet_webserver.id
+  route_table_id = aws_route_table.example_public_rt.id
 }
 
 resource "aws_eip" "example_eip" {
@@ -87,6 +110,7 @@ resource "aws_instance" "example_webserver" {
   ami               = var.ami
   instance_type     = var.instance_type
   availability_zone = var.zone
+  key_name          = "example_key"
 
   network_interface {
     device_index         = 0
@@ -96,9 +120,10 @@ resource "aws_instance" "example_webserver" {
   tags = {
     Name = "production-webserver"
   }
+
 }
 
 resource "aws_key_pair" "example" {
-  depends_on = [aws_instance.example_webserver]
+  key_name   = "example_key"
   public_key = file(var.ssh_key)
 }
