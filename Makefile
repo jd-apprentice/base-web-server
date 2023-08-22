@@ -20,6 +20,9 @@ apply:
 destroy:
 	cd terraform && terraform destroy -var-file="secret.tfvars" --auto-approve
 
+connect:
+	ssh -i $(PRIVATE_KEY_PATH) ec2-user@$(shell cd terraform && terraform output instance_public_ip)
+
 playbook:
 	ansible-playbook ansible/playbook/$(BOOK2USE) -i ansible/inventory
 
